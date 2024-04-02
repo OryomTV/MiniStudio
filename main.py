@@ -1,5 +1,5 @@
 import pygame
-
+import math 
 pygame.init()
 
 screen_width = 800
@@ -9,9 +9,38 @@ grid_size = 20
 grid_width = screen_width/grid_size
 grid_height = screen_height/grid_size
 
-
+#Importer le background 
 fondEcranMenu = pygame.image.load("Image/moutagneBackgound.png")
-fondEcranMenu = pygame.transform.scale(fondEcranMenu,(800,600))
+fondEcranMenu = pygame.transform.scale(fondEcranMenu,(screen_width,screen_height))
+
+
+
+#Importer l'image play du boutton
+play_button = pygame.image.load("Image/bouttonMenu.png")
+play_button = pygame.transform.scale(play_button,(360,180))
+play_button_rect = play_button.get_rect()
+play_button_rect.x =  math.ceil(screen_width / 4)
+play_button_rect.y =  math.ceil(screen_width / 3)
+
+#Importer l'image du boutton quit
+quit_button = pygame.image.load("Image/bouttonQuitMenu.png")
+quit_button = pygame.transform.scale(quit_button,(200,200))
+quit_button_rect = quit_button.get_rect()
+quit_button_rect.x =  math.ceil(screen_width / 4)
+quit_button_rect.y =  math.ceil(screen_width / 2)
+
+
+
+
+# Création de la surface pour le menu pause 
+
+pause_rectangle = pygame.Surface((200, 100), pygame.SRCALPHA)
+pause_rectangle.fill((0,0,255))
+
+opacite = 128  
+pause_rectangle.set_alpha(opacite)
+
+
 
 UP = (0,-1)
 DOWN = (0, 1)
@@ -24,12 +53,10 @@ class Snake:
         self.length = 1
         self.position = [screen_width // 2, screen_height // 2]
         self.direction = RIGHT
+        self.pause = False
 
     def turn(self, point):
         self.direction = point
-
-    def update(self):
-        pass
 
     def move(self):
         current = self.position
@@ -54,6 +81,8 @@ class Snake:
                     self.turn(RIGHT)
                 if event.key == pygame.K_LEFT:
                     self.turn(LEFT)
+                if event.key == pygame.K_z:
+                    self.pause = True    
 
 
 
@@ -72,16 +101,41 @@ def main():
 
     while True:
 
-        if snake.isPlaying:
+        if snake.isPlaying and not snake.pause:
             #Le code principal ici 
             screen.fill((255,255,255))
             snake.handle_keys()
             snake.move()
             snake.draw(screen)
 
+        elif snake.pause:            
+            #Menu pause
+            screen.fill((255,255,255))
+            snake.draw(screen)
+            screen.blit(pause_rectangle, (0, 0))
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_z:
+                        snake.pause = False
         else:
             #Ecran principal
             screen.blit(fondEcranMenu,(0,0))
+            screen.blit(play_button,play_button_rect)
+            screen.blit(quit_button,quit_button_rect)
+
+            for event in pygame.event.get():
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    
+                    if play_button_rect.collidepoint(event.pos):
+                        snake.isPlaying = True
+                    elif quit_button_rect.collidepoint(event.pos):
+                        pygame.quit()
+
+                elif event.type == pygame.QUIT:
+                    pygame.quit()
+
+
+                        
 
         pygame.display.update()
 
