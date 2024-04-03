@@ -69,6 +69,8 @@ class Snake:
                     self.turn(DOWN)
                 if event.key == pygame.K_RIGHT:
                     self.turn(RIGHT)
+                    if event.key == pygame.D :
+                        
                 if event.key == pygame.K_LEFT:
                     self.turn(LEFT)
                     
