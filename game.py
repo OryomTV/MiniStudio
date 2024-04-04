@@ -1,4 +1,5 @@
 import pygame
+import pyscroll
 from square import Square
 
 
