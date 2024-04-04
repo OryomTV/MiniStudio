@@ -1,18 +1,14 @@
+# game.py
 import pygame
 from square import Square
+from ground import Ground
 
-
-# Game class
 class Game:
-
     def __init__(self):
-
-        # Create window
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
-        self.background = pygame.image.load("assets/Kingdom Hearts 3_2.jpg")
+        self.background = pygame.image.load("Kingdom Hearts 3_2.jpg")
 
-        # Square information
         self.rect = self.background.get_rect()
         self.rect.x = 600
         self.rect.y = 700
@@ -21,10 +17,20 @@ class Game:
         self.square1 = Square(self.rect.x, self.rect.y, 30, 30, (0, 0, 255), self)
         self.square2 = Square(self.rect.x + 250, self.rect.y, 40, 40, (0, 255, 0), self)
 
-        # Generation of player
+        self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))  # Adjust dimensions and color as needed
+
+        # Gravity
+        self.gravity = 0.5
+
+        # Velocity jump
+        self.jump_velocity = -10
+        self.vertical_velocity = 0
+        self.is_jump = False
+
         self.all_sprites = pygame.sprite.Group()
         self.all_sprites.add(self.square1)
         self.all_sprites.add(self.square2)
+        self.all_sprites.add(self.ground)
 
         self.pressed = {}
 
@@ -44,43 +50,54 @@ class Game:
         if self.check_collisions(square, self.all_sprites):
             square.rect.x += self.velocity
 
-    def move_up(self, square):
-        square.rect.y -= self.velocity
-        if self.check_collisions(square, self.all_sprites):
-            square.rect.y += self.velocity
-
-    def move_down(self, square):
-        square.rect.y += self.velocity
-        if self.check_collisions(square, self.all_sprites):
-            square.rect.y -= self.velocity
+    def apply_gravity(self, square):
+        if square.rect.y < self.ground.rect.y - square.rect.height:
+            self.vertical_velocity += self.gravity
+            square.rect.y += self.vertical_velocity
+        else:
+            self.vertical_velocity = 0
+            square.rect.y = self.ground.rect.y - square.rect.height
 
     def handle_input(self, square):
         self.pressed = pygame.key.get_pressed()
 
-        # Check where player want to go
         if self.pressed[pygame.K_d] and self.square1.rect.x + self.square1.rect.width < self.screen.get_width():
             self.move_right(self.square1)
+            if self.pressed[pygame.K_SPACE]:
+                self.is_jump = True
+                if self.is_jump == True:
+                    self.jump(self.square1)
 
         elif self.pressed[pygame.K_q] and self.square1.rect.x > 0:
             self.move_left(self.square1)
+            if self.pressed[pygame.K_SPACE]:
+                self.is_jump = True
+                if self.is_jump == True:
+                    self.jump(self.square1)
 
-        elif self.pressed[pygame.K_z] and self.square1.rect.y > 0:
-            self.move_up(self.square1)
+        elif self.pressed[pygame.K_SPACE]:
+            self.is_jump = True
+            if self.is_jump == True:
+                self.jump(self.square1)
 
-        elif self.pressed[pygame.K_s] and self.square1.rect.y + self.square1.rect.height < self.screen.get_height():
-            self.move_down(self.square1)
+    def jump(self, square):
+        if square.rect.y >= self.ground.rect.y - square.rect.height:
+            self.vertical_velocity = self.jump_velocity
+        square.rect.y += self.vertical_velocity
+        self.is_jump = False
+
 
     def run(self):
 
-        # Playing loop
         running = True
 
         while running:
 
-            # Application of the background
             self.screen.blit(self.background, (0, 0))
 
             self.all_sprites.draw(self.screen)
+            
+            self.apply_gravity(self.square1)
 
             # Call to move the player
             self.handle_input(self.square1)
