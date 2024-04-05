@@ -1,113 +1,156 @@
-# game.py
 import pygame
-from square import Square
+import math
+
+from player import Player
+from player import Enemy
 from ground import Ground
 
+
 class Game:
+
     def __init__(self):
+
+        # Create window of the game
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
         self.background = pygame.image.load("Kingdom Hearts 3_2.jpg")
-
         self.rect = self.background.get_rect()
-        self.rect.x = 600
-        self.rect.y = 700
-        self.velocity = 1
 
-        self.square1 = Square(self.rect.x, self.rect.y, 30, 30, (0, 0, 255), self)
-        self.square2 = Square(self.rect.x + 250, self.rect.y, 40, 40, (0, 255, 0), self)
+        self.play = pygame.image.load('Jouer.png')
+        self.play = pygame.transform.scale(self.play, (900, 550))
+        self.play_rect = self.play.get_rect()
+        self.play_rect.x = math.ceil(self.screen.get_width() / 4)
+        self.play_rect.y = math.ceil(self.screen.get_height() / 7)
 
-        self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))  # Adjust dimensions and color as needed
+        # Load button for launch the game
+        self.quit = pygame.image.load('bouton_quit.png')
+        self.quit = pygame.transform.scale(self.quit, (900, 550))
+        self.quit_rect = self.quit.get_rect()
+        self.quit_rect.x = math.ceil(self.screen.get_width() / 4)
+        self.quit_rect.y = math.ceil(self.screen.get_height() / 4)
+
+        # Define if the game has started or not
+        self.is_playing = False
+
+        # Generate player
+        self.player = Player(100, 500, "player.png", 200, 160, self)
+        self.enemy = Enemy(900, 450, "mummy.png", 150, 200, self)
+        self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
+
+        # Generate different groups
+        self.all_player = pygame.sprite.Group()
+        self.all_player.add(self.player)
+
+        self.all_enemies = pygame.sprite.Group()
+        self.all_enemies.add(self.enemy)
+
+        self.all_grounds = pygame.sprite.Group()
+        self.all_grounds.add(self.ground)
 
         # Gravity
         self.gravity = 0.5
 
         # Velocity jump
-        self.jump_velocity = -10
+        self.jump_velocity = -15
         self.vertical_velocity = 0
         self.is_jump = False
 
-        self.all_sprites = pygame.sprite.Group()
-        self.all_sprites.add(self.square1)
-        self.all_sprites.add(self.square2)
-        self.all_sprites.add(self.ground)
-
         self.pressed = {}
 
-    def check_collisions(self, sprite, group):
-        for other_sprite in group:
-            if sprite != other_sprite and pygame.sprite.collide_rect(sprite, other_sprite):
-                return True
-        return False
+    def start(self):
+        self.is_playing = True
 
-    def move_right(self, square):
-        square.rect.x += self.velocity
-        if self.check_collisions(square, self.all_sprites):
-            square.rect.x -= self.velocity
+    def update(self):
+        # Application of my player image
+        self.screen.blit(self.player.image, self.player.rect)
 
-    def move_left(self, square):
-        square.rect.x -= self.velocity
-        if self.check_collisions(square, self.all_sprites):
-            square.rect.x += self.velocity
+        # Application of the monster image
+        for enemy in self.all_enemies:
+            self.screen.blit(enemy.image, enemy.rect)
 
-    def apply_gravity(self, square):
-        if square.rect.y < self.ground.rect.y - square.rect.height:
+        # Application of the set of images of my monsters group
+        self.all_enemies.draw(self.screen)
+
+        # Application of the set of images of my grounds group
+        self.all_grounds.draw(self.screen)
+
+    def apply_gravity(self):
+        if self.player.position[1] < self.ground.rect.y - self.player.rect.height:
             self.vertical_velocity += self.gravity
-            square.rect.y += self.vertical_velocity
+            self.player.position[1] += self.vertical_velocity
         else:
             self.vertical_velocity = 0
-            square.rect.y = self.ground.rect.y - square.rect.height
+            self.player.position[1] = self.ground.rect.y - self.player.rect.height
 
-    def handle_input(self, square):
+    def handle_input(self):
         self.pressed = pygame.key.get_pressed()
 
-        if self.pressed[pygame.K_d] and self.square1.rect.x + self.square1.rect.width < self.screen.get_width():
-            self.move_right(self.square1)
+        if self.pressed[pygame.K_q] and self.player.rect.x > 0:
+            self.player.move_left()
             if self.pressed[pygame.K_SPACE]:
                 self.is_jump = True
-                if self.is_jump == True:
-                    self.jump(self.square1)
+                if self.is_jump:
+                    self.jump()
 
-        elif self.pressed[pygame.K_q] and self.square1.rect.x > 0:
-            self.move_left(self.square1)
+        elif self.pressed[pygame.K_d] and self.player.rect.x + self.player.rect.width < self.screen.get_width():
+            self.player.move_right()
             if self.pressed[pygame.K_SPACE]:
                 self.is_jump = True
-                if self.is_jump == True:
-                    self.jump(self.square1)
+                if self.is_jump:
+                    self.jump()
 
-        elif self.pressed[pygame.K_SPACE]:
+        elif self.pressed[pygame.K_SPACE] and not self.is_jump:
             self.is_jump = True
-            if self.is_jump == True:
-                self.jump(self.square1)
+            if self.is_jump:
+                self.jump()
 
-    def jump(self, square):
-        if square.rect.y >= self.ground.rect.y - square.rect.height:
+    def jump(self):
+        if self.player.position[1] >= self.ground.rect.y - self.player.rect.height:
             self.vertical_velocity = self.jump_velocity
-        square.rect.y += self.vertical_velocity
+        self.player.position[1] += self.vertical_velocity
         self.is_jump = False
-
 
     def run(self):
 
+        clock = pygame.time.Clock()
+
+        # boucle du jeu
         running = True
 
         while running:
 
+            self.player.update()
+
             self.screen.blit(self.background, (0, 0))
 
-            self.all_sprites.draw(self.screen)
-            
-            self.apply_gravity(self.square1)
+            # Check if game has started or not
+            if self.is_playing:
+                # Trigger game instructions
+                self.update()
 
-            # Call to move the player
-            self.handle_input(self.square1)
+            else:
+                # Add welcome screen
+                self.screen.blit(self.play, self.play_rect)
+                self.screen.blit(self.quit, self.quit_rect)
+
+            self.apply_gravity()
+            self.handle_input()
 
             pygame.display.flip()
 
-            # If the player close this window
             for event in pygame.event.get():
-
                 if event.type == pygame.QUIT:
                     running = False
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    # Check if mouse collides with the play button
+                    if self.play_rect.collidepoint(event.pos):
+                        # Launch the game
+                        self.start()
+
+                    if self.quit_rect.collidepoint(event.pos):
+                        running = False
+
+            clock.tick(120)
 
         pygame.quit()

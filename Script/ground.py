@@ -1,5 +1,5 @@
-# ground.py
 import pygame
+
 
 class Ground(pygame.sprite.Sprite):
     def __init__(self, x, y, width, height, color):
@@ -9,3 +9,8 @@ class Ground(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+    def draw(self, surface):
+
+        # Load ground
+        surface.blit(self.image, self.rect)

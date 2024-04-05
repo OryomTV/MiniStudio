@@ -21,43 +21,6 @@ DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-class Snake:
-    def __init__(self):
-        self.isPlaying = False
-        self.length = 1
-        self.position = [screen_width // 2, screen_height // 2]
-        self.direction = RIGHT
-        self.pause = False
-
-    def turn(self, point):
-        self.direction = point
-
-    def move(self):
-        current = self.position
-        x, y = self.direction
-        new = (current[0] + x * grid_size), (current[1] + y * grid_size)
-        self.position = new
-
-    def draw(self, surface):
-        r = pygame.Rect(self.position, (grid_size,grid_size))
-        pygame.draw.rect(surface, (0,255,0), r)
-
-    def handle_keys(self):
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    self.turn(UP)
-                if event.key == pygame.K_DOWN:
-                    self.turn(DOWN)
-                if event.key == pygame.K_RIGHT:
-                    self.turn(RIGHT)
-                if event.key == pygame.K_LEFT:
-                    self.turn(LEFT)
-                if event.key == pygame.K_ESCAPE:
-                    return True    
-
 
 class Menu:
         def __init__(self):
