@@ -1,8 +1,8 @@
 import pygame
 import math
 
-from player import Player
-from player import Enemy
+from entity import Player
+from entity import Enemy
 from ground import Ground
 
 
