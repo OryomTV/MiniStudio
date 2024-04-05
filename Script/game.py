@@ -5,7 +5,6 @@ from player import Player
 from player import Enemy
 from ground import Ground
 
-
 class Game:
 
     def __init__(self):
@@ -17,18 +16,26 @@ class Game:
         self.rect = self.background.get_rect()
 
         # Load button for launch the game
-        self.play = pygame.image.load("Asset/bouton_play.png")
+        self.play = pygame.image.load("Asset/bouton_jouer.png")
         self.play = pygame.transform.scale(self.play, (400, 160))
         self.play_rect = self.play.get_rect()
         self.play_rect.x = math.ceil(self.screen.get_width() / 2.5)
-        self.play_rect.y = math.ceil(self.screen.get_height() / 4)
+        self.play_rect.y = math.ceil(self.screen.get_height() / 2)
+
+        # Load button for option 
+        self.parametre = pygame.image.load("Asset/bouton_parametres.png")
+        self.parametre = pygame.transform.scale(self.parametre, (380, 111))
+        self.parametre_rect = self.parametre.get_rect()
+        self.parametre_rect.x = math.ceil(self.screen.get_width() / 2.47)
+        self.parametre_rect.y = math.ceil(self.screen.get_height() / 1.45)
+
 
         # Load button for quit the game
-        self.quit = pygame.image.load("Asset/bouton_quit.png")
+        self.quit = pygame.image.load("Asset/bouton_quitter.png")
         self.quit = pygame.transform.scale(self.quit, (300, 100))
         self.quit_rect = self.quit.get_rect()
-        self.quit_rect.x = math.ceil(self.screen.get_width() / 4)
-        self.quit_rect.y = math.ceil(self.screen.get_height() / 2)
+        self.quit_rect.x = math.ceil(self.screen.get_width() / 2.37)
+        self.quit_rect.y = math.ceil(self.screen.get_height() / 1.2)
 
         # Define if the game has started or not
         self.is_playing = False
@@ -132,6 +139,7 @@ class Game:
             else:
                 # Add welcome screen
                 self.screen.blit(self.play, self.play_rect)
+                self.screen.blit(self.parametre, self.parametre_rect)
                 self.screen.blit(self.quit, self.quit_rect)
 
             self.apply_gravity()
