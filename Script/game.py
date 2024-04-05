@@ -13,28 +13,29 @@ class Game:
         # Create window of the game
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
-        self.background = pygame.image.load("Kingdom Hearts 3_2.jpg")
+        self.background = pygame.image.load("Asset/Untitled_Artwork.jpg")
         self.rect = self.background.get_rect()
 
-        self.play = pygame.image.load('Jouer.png')
-        self.play = pygame.transform.scale(self.play, (900, 550))
-        self.play_rect = self.play.get_rect()
-        self.play_rect.x = math.ceil(self.screen.get_width() / 4)
-        self.play_rect.y = math.ceil(self.screen.get_height() / 7)
-
         # Load button for launch the game
-        self.quit = pygame.image.load('bouton_quit.png')
-        self.quit = pygame.transform.scale(self.quit, (900, 550))
+        self.play = pygame.image.load("Asset/bouton_play.png")
+        self.play = pygame.transform.scale(self.play, (400, 160))
+        self.play_rect = self.play.get_rect()
+        self.play_rect.x = math.ceil(self.screen.get_width() / 2.5)
+        self.play_rect.y = math.ceil(self.screen.get_height() / 4)
+
+        # Load button for quit the game
+        self.quit = pygame.image.load("Asset/bouton_quit.png")
+        self.quit = pygame.transform.scale(self.quit, (300, 100))
         self.quit_rect = self.quit.get_rect()
         self.quit_rect.x = math.ceil(self.screen.get_width() / 4)
-        self.quit_rect.y = math.ceil(self.screen.get_height() / 4)
+        self.quit_rect.y = math.ceil(self.screen.get_height() / 2)
 
         # Define if the game has started or not
         self.is_playing = False
 
         # Generate player
-        self.player = Player(100, 500, "player.png", 200, 160, self)
-        self.enemy = Enemy(900, 450, "mummy.png", 150, 200, self)
+        self.player = Player(100, 500, "Asset/Llusern.png", 200, 160, self)
+        self.enemy = Enemy(900, 450, "Asset/Pangolin.png", 150, 200, self)
         self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
 
         # Generate different groups
