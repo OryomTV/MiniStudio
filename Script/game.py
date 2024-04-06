@@ -4,6 +4,7 @@ import math
 from entity import Player
 from entity import Enemy
 from ground import Ground
+from plateforme import Plateforme
 
 
 class Game:
@@ -35,8 +36,12 @@ class Game:
 
         # Generate player
         self.player = Player(100, 500, "Asset/Llusern.png", 200, 160, self)
-        self.enemy = Enemy(900, 450, "Asset/Pangolin.png", 150, 200, self)
+        self.enemy = Enemy(900, 450, "Asset/Pangolin.png", 150, 200, self, (1, 0), 100)
         self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
+
+        # Generate plateforme
+        self.plateforme = Plateforme(900, 450, 500, 250, "Asset/bouton_jouer.png", True, (-1, 1), 100)
+
 
         # Generate different groups
         self.all_player = pygame.sprite.Group()
@@ -47,6 +52,9 @@ class Game:
 
         self.all_grounds = pygame.sprite.Group()
         self.all_grounds.add(self.ground)
+
+        self.all_plateforme = pygame.sprite.Group()
+        self.all_plateforme.add(self.plateforme)
 
         # Gravity
         self.gravity = 0.5
@@ -74,6 +82,9 @@ class Game:
 
         # Application of the set of images of my grounds group
         self.all_grounds.draw(self.screen)
+
+        # Application of the set of images of our platforms group
+        self.all_plateforme.draw(self.screen)
 
     def apply_gravity(self):
         if self.player.position[1] < self.ground.rect.y - self.player.rect.height:
@@ -111,6 +122,7 @@ class Game:
         self.player.position[1] += self.vertical_velocity
         self.is_jump = False
 
+
     def run(self):
 
         clock = pygame.time.Clock()
@@ -121,6 +133,10 @@ class Game:
         while running:
 
             self.player.update()
+            
+            self.plateforme.move(1)
+            
+            self.enemy.move(1)
 
             self.screen.blit(self.background, (0, 0))
 
@@ -152,6 +168,6 @@ class Game:
                     if self.quit_rect.collidepoint(event.pos):
                         running = False
 
-            clock.tick(120)
+            clock.tick(60)
 
         pygame.quit()
