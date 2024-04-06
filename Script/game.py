@@ -4,6 +4,9 @@ import math
 from entity import Player
 from entity import Enemy
 from ground import Ground
+from obscurity import Obscurity
+from sounds import SoundManager
+from menu import Menu, Play_fr, Quit_fr, Settings_fr, Retour, Language_fr, Play_en, Settings_en, Quit_en, Back, Language_en
 from plateforme import Plateforme
 
 
@@ -14,7 +17,9 @@ class Game:
         # Create window of the game
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
-        self.background = pygame.image.load("Asset/Untitled_Artwork.jpg")
+        self.background = pygame.image.load("../Assets/Kingdom Hearts 3_2.jpg")
+        self.background_2 = pygame.image.load("../Assets/settings_french.jpg")
+        self.background_3 = pygame.image.load("../Assets/settings_english.jpg")
         self.rect = self.background.get_rect()
 
         # Load button for launch the game
@@ -43,6 +48,22 @@ class Game:
         self.plateforme = Plateforme(900, 450, 500, 250, "Asset/bouton_jouer.png", True, (-1, 1), 100)
 
 
+        # Generate menus
+        self.play_fr = Play_fr(self)
+        self.quit_fr = Quit_fr(self)
+        self.settings_fr = Settings_fr(self)
+        self.retour = Retour(self)
+        self.lang_fr = Language_fr(self)
+
+        self.play_en = Play_en(self)
+        self.settings_en = Settings_en(self)
+        self.quit_en = Quit_en(self)
+        self.back = Back(self)
+        self.lang_en = Language_en(self)
+
+        # Generate obscurity
+        self.obscurity = Obscurity((1920, 1080))
+
         # Generate different groups
         self.all_player = pygame.sprite.Group()
         self.all_player.add(self.player)
@@ -56,6 +77,8 @@ class Game:
         self.all_plateforme = pygame.sprite.Group()
         self.all_plateforme.add(self.plateforme)
 
+        self.all_menus = pygame.sprite.Group()
+
         # Gravity
         self.gravity = 0.5
 
@@ -66,8 +89,104 @@ class Game:
 
         self.pressed = {}
 
-    def start(self):
-        self.is_playing = True
+        # Manage sounds
+        self.sound_manager = SoundManager()
+
+        # Menus
+        self.main_fr_menus = pygame.sprite.Group()
+        self.settings_fr_menus = pygame.sprite.Group()
+        self.main_en_menus = pygame.sprite.Group()
+        self.settings_en_menus = pygame.sprite.Group()
+
+        # Create menus
+        self.create_menus()
+
+        # Current screen
+        self.current_screen = "main_fr"
+
+    def create_menus(self):
+        # Main french menus
+        self.play_fr = Play_fr(self)
+        self.quit_fr = Quit_fr(self)
+        self.settings_fr = Settings_fr(self)
+        self.main_fr_menus.add(self.play_fr, self.quit_fr, self.settings_fr)
+
+        # Settings french menus
+        self.retour = Retour(self)
+        self.lang_fr = Language_fr(self)
+        self.settings_fr_menus.add(self.retour, self.lang_fr)
+
+        # Main english menus
+        self.play_en = Play_en(self)
+        self.quit_en = Quit_en(self)
+        self.settings_en = Settings_en(self)
+        self.main_en_menus.add(self.play_en, self.quit_en, self.settings_en)
+
+        # Settings english menus
+        self.back = Back(self)
+        self.lang_en = Language_en(self)
+        self.settings_en_menus.add(self.back, self.lang_en)
+
+    def choice_menus(self, event):
+        if self.current_screen == "main_fr":
+            # If play is clicked
+            if self.play_fr.rect.collidepoint(event.pos):
+                self.current_screen = "play_fr"
+                self.is_playing = True
+
+                if self.is_playing:
+                    # Play sound
+                    self.sound_manager.play('click')
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+                    self.current_screen = "main_fr"
+
+            # If settings button is clicked
+            elif self.settings_fr.rect.collidepoint(event.pos):
+                self.current_screen = "settings_fr"
+
+            # If quit is clicked
+            elif self.quit_fr.rect.collidepoint(event.pos):
+                pygame.quit()
+
+        elif self.current_screen == "settings_fr":
+            # If retour is clicked
+            if self.retour.rect.collidepoint(event.pos):
+                self.current_screen = "main_fr"
+
+            # If language is clicked
+            elif self.lang_fr.rect.collidepoint(event.pos):
+                self.current_screen = "settings_en"
+
+        elif self.current_screen == "main_en":
+            # If play is clicked
+            if self.play_en.rect.collidepoint(event.pos):
+                self.current_screen = "play_en"
+                self.is_playing = True
+
+                if self.is_playing:
+                    # Play sound
+                    self.sound_manager.play('click')
+
+                if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+                    self.current_screen = "main_en"
+
+            # If settings button is clicked
+            elif self.settings_en.rect.collidepoint(event.pos):
+                self.current_screen = "settings_en"
+
+            # If quit is clicked
+            elif self.quit_en.rect.collidepoint(event.pos):
+                pygame.quit()
+
+        elif self.current_screen == "settings_en":
+            # If retour is clicked
+            if self.back.rect.collidepoint(event.pos):
+                self.current_screen = "main_en"
+
+            # If language is clicked
+            elif self.lang_en.rect.collidepoint(event.pos):
+                self.current_screen = "settings_fr"
 
     def update(self):
         # Application of my player image
@@ -85,6 +204,12 @@ class Game:
 
         # Application of the set of images of our platforms group
         self.all_plateforme.draw(self.screen)
+
+        # Apply the obscurity one the player
+        self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
+
+        self.apply_gravity()
+        self.handle_input()
 
     def apply_gravity(self):
         if self.player.position[1] < self.ground.rect.y - self.player.rect.height:
@@ -133,25 +258,18 @@ class Game:
         while running:
 
             self.player.update()
-            
             self.plateforme.move(1)
             
             self.enemy.move(1)
-
             self.screen.blit(self.background, (0, 0))
 
-            # Check if game has started or not
-            if self.is_playing:
-                # Trigger game instructions
+            elif self.current_screen == "play_fr":
+                self.screen.blit(self.background, (0, 0))
                 self.update()
 
-            else:
-                # Add welcome screen
-                self.screen.blit(self.play, self.play_rect)
-                self.screen.blit(self.quit, self.quit_rect)
-
-            self.apply_gravity()
-            self.handle_input()
+            elif self.current_screen == "play_en":
+                self.screen.blit(self.background, (0, 0))
+                self.update()
 
             pygame.display.flip()
 
@@ -160,13 +278,11 @@ class Game:
                     running = False
 
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # Check if mouse collides with the play button
-                    if self.play_rect.collidepoint(event.pos):
-                        # Launch the game
-                        self.start()
+                    self.choice_menus(event)
 
-                    if self.quit_rect.collidepoint(event.pos):
-                        running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_b and self.is_playing:
+                        self.current_screen = "main_fr" if self.current_screen == "play_fr" else "main_en"
 
             clock.tick(60)
 
