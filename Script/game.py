@@ -16,17 +16,17 @@ class Game:
         # Create window of the game
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
-        self.background = pygame.image.load("assets/Kingdom Hearts 3_2.jpg")
-        self.background_2 = pygame.image.load("assets/settings_french.jpg")
-        self.background_3 = pygame.image.load("assets/settings_english.jpg")
+        self.background = pygame.image.load("../Assets/Kingdom Hearts 3_2.jpg")
+        self.background_2 = pygame.image.load("../Assets/settings_french.jpg")
+        self.background_3 = pygame.image.load("../Assets/settings_english.jpg")
         self.rect = self.background.get_rect()
 
         # Define the game has started
         self.is_playing = False
 
         # Generate player
-        self.player = Player(100, 500, "assets/player.png", 200, 160, self)
-        self.enemy = Enemy(900, 450, "assets/mummy.png", 150, 200, self)
+        self.player = Player(100, 500, "../Assets/player.png", 200, 160, self)
+        self.enemy = Enemy(900, 450, "../Assets/mummy.png", 150, 200, self)
         self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
 
         # Generate menus

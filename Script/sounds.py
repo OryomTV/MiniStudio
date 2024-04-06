@@ -4,8 +4,8 @@ import pygame
 class SoundManager:
     def __init__(self):
         self.sounds = {
-            'click': pygame.mixer.Sound("click.ogg"),
-            'main': pygame.mixer.Sound("Back_music.wav")
+            'click': pygame.mixer.Sound("../Sounds/click.ogg"),
+            # 'main': pygame.mixer.Sound("../Sounds/Back_music.wav")
         }
         self.volume = {
             'click': 1,
