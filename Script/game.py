@@ -1,11 +1,12 @@
 import pygame
 import math
-import time
+
 
 
 from player import Player
 from player import Enemy
 from ground import Ground
+from collectible import Collectible
 
 class Game:
 
@@ -182,6 +183,8 @@ class Game:
 
         clock = pygame.time.Clock()
 
+        fraise = Collectible("Asset/collectibleTest.png",1000,600)
+
         # boucle du jeu
         running = True
 
@@ -195,6 +198,11 @@ class Game:
                 # Trigger game instructions
                 self.update()
 
+                
+                if fraise.object_etat:
+                    self.screen.blit(fraise.object_image, fraise.object_rect)
+                    fraise.update(self.player.position[0],self.player.position[1])
+
             else:
                 # Add welcome screen
                 self.screen.blit(self.play, self.play_rect)
@@ -203,6 +211,8 @@ class Game:
 
             self.apply_gravity()
             self.handle_input()
+
+
 
             pygame.display.flip()
 
