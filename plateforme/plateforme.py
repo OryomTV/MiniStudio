@@ -1,16 +1,4 @@
 import pygame
-import random
-import math
-import time
-
-pygame.init()
-
-screen_width = 800
-screen_height = 600
-
-grid_size = 20
-grid_width = screen_width/grid_size
-grid_height = screen_height/grid_size
 
 UP = (0,-1)
 DOWN = (0, 1)
@@ -38,31 +26,28 @@ class Plateforme(pygame.sprite.Sprite):
             self.draw(surface)
 
     def deplacement(self, vitesse, direction_x=None, direction_y=None, max_distance=None):
-        if direction_x is not None:
-            self.direction = direction_x
-        if direction_y is not None:
-            self.direction2 = direction_y
-        if max_distance is not None:
-            self.max_distance = max_distance
+        
+        self.direction = direction_x
+        self.direction2 = direction_y
+        self.max_distance = max_distance
 
+        #mouvement
         if self.direction == RIGHT:
             self.rect.x += vitesse
-            if self.max_distance is not None:
-                self.distance_moved += vitesse  # Increment distance_moved by vitesse each time the method is called
+            self.distance_moved += vitesse 
         elif self.direction == LEFT:
             self.rect.x -= vitesse
-            if self.max_distance is not None:
-                self.distance_moved += vitesse
+            self.distance_moved += vitesse
         if self.direction2 == UP:
             self.rect.y -= vitesse
-            if self.max_distance is not None:
-                self.distance_moved += vitesse
+            self.distance_moved += vitesse
         elif self.direction2 == DOWN:
             self.rect.y += vitesse
-            if self.max_distance is not None:
-                self.distance_moved += vitesse
+            self.distance_moved += vitesse
 
-        if self.max_distance is not None and self.distance_moved >= self.max_distance:
+
+        #demi-tour
+        if self.distance_moved >= self.max_distance:
             
             if self.direction == RIGHT:
                 self.direction = LEFT
@@ -78,31 +63,5 @@ class Plateforme(pygame.sprite.Sprite):
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
-
-screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Snake")
-
-def main():
-    screen = pygame.display.set_mode((screen_width, screen_height))
-    pygame.display.set_caption("Snake")
-    
-    plateformeDiagonale = Plateforme(300, 100, 15, 40, "plateforme.png", False)
-    plateformeDiagonale.distance_moved = 0 
-    plateformeDiagonale.direction = RIGHT #direction au lancement
-    plateformeDiagonale.direction2 = DOWN
-
-    plateformeMonstre = Plateforme(160, 285, 15, 70, "plateforme.png",False)
-
-    while True:
-
-        screen.fill((255,255,255))
-        plateformeDiagonale.draw(screen)
-        plateformeMonstre.draw(screen)
         
-        plateformeDiagonale.deplacement(5, plateformeDiagonale.direction, plateformeDiagonale.direction2, 60)
-
-        pygame.display.update()
-
-if __name__ == "__main__":
-    
-    main()
+        
