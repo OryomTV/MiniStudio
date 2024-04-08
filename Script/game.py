@@ -1,5 +1,7 @@
 import pygame
 import math
+import time
+
 
 from player import Player
 from player import Enemy
@@ -26,7 +28,7 @@ class Game:
         self.parametre = pygame.image.load("Asset/bouton_parametres.png")
         self.parametre = pygame.transform.scale(self.parametre, (380, 111))
         self.parametre_rect = self.parametre.get_rect()
-        self.parametre_rect.x = math.ceil(self.screen.get_width() / 2.47)
+        self.parametre_rect.x = math.ceil(self.screen.get_width() / 2.46)
         self.parametre_rect.y = math.ceil(self.screen.get_height() / 1.45)
 
 
@@ -61,7 +63,23 @@ class Game:
         # Velocity jump
         self.jump_velocity = -15
         self.vertical_velocity = 0
-        self.is_jump = False
+
+        self.delta_time = 0.0
+
+        #DoubleSaut
+        self.toucheRelacherSaut = False
+        self.doubleSaut = False
+        self.isGrounded = True
+        self.time_since_last_jump = 0.0 
+        self.cooldown_jump_time = 0.5
+
+        #Dash
+        self.cooldown_dash_time = 2
+        self.time_since_last_dash = 0.0
+        self.dash_dispo = True
+        self.dash_time = 0.5
+        self.dash_velocity = 0
+        self.air_resistance = 1
 
         self.pressed = {}
 
@@ -82,6 +100,18 @@ class Game:
         # Application of the set of images of my grounds group
         self.all_grounds.draw(self.screen)
 
+        #Verifie en permanenece si le joueur est au sol ou pas
+        if self.player.position[1] >= self.ground.rect.y - self.player.rect.height:
+            self.isGrounded = True
+            self.toucheRelacherSaut = False
+            self.doubleSaut = False
+        else:
+            self.isGrounded = False
+        
+        #dash dispo apres que le cooldown soit fini et qu'il soit au sol (isGrounded)
+        if self.time_since_last_dash >= self.cooldown_dash_time and self.isGrounded:
+            self.dash_dispo = True
+
     def apply_gravity(self):
         if self.player.position[1] < self.ground.rect.y - self.player.rect.height:
             self.vertical_velocity += self.gravity
@@ -90,33 +120,63 @@ class Game:
             self.vertical_velocity = 0
             self.player.position[1] = self.ground.rect.y - self.player.rect.height
 
+        if self.dash_velocity != 0:
+            self.player.position[0] += self.dash_velocity
+
+            if self.dash_velocity > 0 :
+                self.dash_velocity -= self.air_resistance
+            elif self.dash_velocity < 0 :
+                self.dash_velocity += self.air_resistance
+
     def handle_input(self):
         self.pressed = pygame.key.get_pressed()
+        
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    self.toucheRelacherSaut = True
 
         if self.pressed[pygame.K_q] and self.player.rect.x > 0:
             self.player.move_left()
-            if self.pressed[pygame.K_SPACE]:
-                self.is_jump = True
-                if self.is_jump:
-                    self.jump()
+            self.jump()
+            self.dash("G")
 
         elif self.pressed[pygame.K_d] and self.player.rect.x + self.player.rect.width < self.screen.get_width():
             self.player.move_right()
-            if self.pressed[pygame.K_SPACE]:
-                self.is_jump = True
-                if self.is_jump:
-                    self.jump()
+            self.jump()
+            self.dash("D")
 
-        elif self.pressed[pygame.K_SPACE] and not self.is_jump:
-            self.is_jump = True
-            if self.is_jump:
-                self.jump()
+        if self.pressed[pygame.K_SPACE]:  # Oui ces dégeu me demande pas pk si tu fais que un seul appel de jump ya pas 
+            self.jump() # de double saut avec le neutral jump (sans imput q et d ), suprime la condition et l'instruction a l'interieur pour essayer
+        self.jump()
+
 
     def jump(self):
-        if self.player.position[1] >= self.ground.rect.y - self.player.rect.height:
+        if  self.pressed[pygame.K_SPACE] and self.isGrounded:
             self.vertical_velocity = self.jump_velocity
-        self.player.position[1] += self.vertical_velocity
-        self.is_jump = False
+            self.player.position[1] += self.jump_velocity
+            self.doubleSaut = True
+            self.time_since_last_jump = 0.0 
+
+        elif self.pressed[pygame.K_SPACE] and self.doubleSaut and self.time_since_last_jump >= self.cooldown_jump_time:
+            self.vertical_velocity = self.jump_velocity
+            self.player.position[1] += self.jump_velocity
+            self.doubleSaut = False
+        else:
+            self.time_since_last_jump += self.delta_time
+    
+    def dash(self,direction):
+        if self.pressed[pygame.K_LSHIFT] and self.dash_dispo and direction != None:
+            if direction == "G":
+                self.dash_velocity = -30
+            else: 
+                self.dash_velocity = 30
+
+            self.time_since_last_dash = 0.0 
+            self.dash_dispo = False
+        else:
+            self.time_since_last_dash += self.delta_time
+
 
     def run(self):
 
@@ -128,7 +188,6 @@ class Game:
         while running:
 
             self.player.update()
-
             self.screen.blit(self.background, (0, 0))
 
             # Check if game has started or not
@@ -160,6 +219,6 @@ class Game:
                     if self.quit_rect.collidepoint(event.pos):
                         running = False
 
-            clock.tick(120)
+            self.delta_time = clock.tick(120) / 1000.0
 
         pygame.quit()

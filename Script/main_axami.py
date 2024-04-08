@@ -78,7 +78,7 @@ def main():
 
     clock = pygame.time.Clock()
 
-    snake = Snake()
+    #snake = Snake()
     menu = Menu()
 
     while True:
