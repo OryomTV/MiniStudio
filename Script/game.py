@@ -139,14 +139,25 @@ class Game:
                     self.toucheRelacherSaut = True
 
         if self.pressed[pygame.K_q] and self.player.rect.x > 0:
-            self.player.move_left()
+            if self.pressed[pygame.K_LCTRL]:
+                self.player.run_left()
+            else :
+                self.player.move_left()
+
             self.jump()
             self.dash("G")
 
         elif self.pressed[pygame.K_d] and self.player.rect.x + self.player.rect.width < self.screen.get_width():
-            self.player.move_right()
+
+            if self.pressed[pygame.K_LCTRL]:
+                print("cours")
+                self.player.run_right()
+            else :
+                self.player.move_right()
+                
             self.jump()
             self.dash("D")
+
 
         if self.pressed[pygame.K_SPACE]:  # Oui ces dégeu me demande pas pk si tu fais que un seul appel de jump ya pas 
             self.jump() # de double saut avec le neutral jump (sans imput q et d ), suprime la condition et l'instruction a l'interieur pour essayer

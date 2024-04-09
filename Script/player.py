@@ -28,6 +28,16 @@ class Entity(pygame.sprite.Sprite):
         if self.check_collisions(self, self.game.all_grounds):
             self.position[0] += self.velocity
 
+    def run_right(self):
+        self.position[0] += self.velocity + 5
+        if self.check_collisions(self, self.game.all_grounds):
+            self.position[0] -= self.velocity +5
+
+    def run_left(self):
+        self.position[0] -= self.velocity + 5
+        if self.check_collisions(self, self.game.all_grounds):
+            self.position[0] += self.velocity + 5
+
     def update(self):
         self.rect.topleft = self.position
 
@@ -121,7 +131,6 @@ class Boss(pygame.sprite.Sprite):
             elif self.rect.y + self.imageHeight >= 800: # bas
                 self.move(True)
                 self.last_mouvement = True
-            print(self.rect.y)
 
         #Block deplacement
         # Oui c'est factorisable si tes pas content fais le 
