@@ -67,8 +67,10 @@ class Enemy(Entity):
 
 class Boss(pygame.sprite.Sprite):
     def __init__(self, x, y):
+        self.imageHeight = 500
+        self.imageWidth = 400
         self.original_image = pygame.image.load("Asset/bossTest.png").convert_alpha()
-        self.image = pygame.transform.scale(self.original_image, (600,500))
+        self.image = pygame.transform.scale(self.original_image, (self.imageHeight,self.imageWidth))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -79,6 +81,7 @@ class Boss(pygame.sprite.Sprite):
         self.velocity = 5      
         self.inMouvement = False 
         self.attack = False 
+        self.last_mouvement = None
     
     def move(self,top):
         if top :
@@ -108,10 +111,18 @@ class Boss(pygame.sprite.Sprite):
 
         if self.time_since_mouvement >= 5.0: # Le temps entre chaque deplacement
             self.inMouvement = True
-            if self.rect.y < 0:
-                self.move(True)   # La logique de mouvement est a revoir pour pas qu'il quite l'ecran
-            else:
+            if self.rect.y <= 200: # Haut
                 self.move(False)
+                self.last_mouvement = False
+
+            elif self.rect.y  >= 200 and self.rect.y <= 700: # Les valeurs devront etre changer en fonction de la taille de l'image
+                self.move(self.last_mouvement) #  millieu
+
+            elif self.rect.y + self.imageHeight >= 800: # bas
+                self.move(True)
+                self.last_mouvement = True
+            print(self.rect.y)
+
         #Block deplacement
         # Oui c'est factorisable si tes pas content fais le 
 
@@ -120,7 +131,7 @@ class Boss(pygame.sprite.Sprite):
             print("attaque")
             self.attack = False
 
-        elif self.time_since_attack >= 2.5:
+        elif self.time_since_attack >= 2.5: # Temps entre chaque attaque
             self.attack = True
             self.time_since_attack = 0.0
         else:
