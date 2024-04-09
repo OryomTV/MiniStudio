@@ -5,6 +5,7 @@ import math
 
 from player import Player
 from player import Enemy
+from player import Boss
 from ground import Ground
 from collectible import Collectible
 
@@ -184,6 +185,7 @@ class Game:
         clock = pygame.time.Clock()
 
         fraise = Collectible("Asset/collectibleTest.png",1000,600)
+        sephiroth = Boss(1000,0)
 
         # boucle du jeu
         running = True
@@ -202,6 +204,8 @@ class Game:
                 if fraise.object_etat:
                     self.screen.blit(fraise.object_image, fraise.object_rect)
                     fraise.update(self.player.position[0],self.player.position[1])
+                self.screen.blit(sephiroth.image, sephiroth.rect)
+                sephiroth.update(self.delta_time)
 
             else:
                 # Add welcome screen
