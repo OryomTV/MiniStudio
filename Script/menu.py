@@ -8,7 +8,7 @@ class LoadMenu(pygame.sprite.Sprite):
         super().__init__()
 
         self.size = size
-        self.image = pygame.image.load(f'../Assets/{menu_name}.png')
+        self.image = pygame.image.load(f'Assets/{menu_name}.png')
         self.image = pygame.transform.scale(self.image, size)
 
 

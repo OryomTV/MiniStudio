@@ -4,10 +4,12 @@ import math
 from entity import Player
 from entity import Enemy
 from ground import Ground
+
+from plateforme import Plateforme
+
 from obscurity import Obscurity
 from sounds import SoundManager
 from menu import Menu, Play_fr, Quit_fr, Settings_fr, Retour, Language_fr, Play_en, Settings_en, Quit_en, Back, Language_en
-from plateforme import Plateforme
 
 
 class Game:
@@ -17,36 +19,22 @@ class Game:
         # Create window of the game
         pygame.display.set_caption("Shining")
         self.screen = pygame.display.set_mode((1920, 1080))
-        self.background = pygame.image.load("../Assets/Kingdom Hearts 3_2.jpg")
-        self.background_2 = pygame.image.load("../Assets/settings_french.jpg")
-        self.background_3 = pygame.image.load("../Assets/settings_english.jpg")
+        self.background = pygame.image.load("Assets/Untitled_Artwork.jpg")
+        self.background_2 = pygame.image.load("Assets/settings_french.jpg")
+        self.background_3 = pygame.image.load("Assets/settings_english.jpg")
         self.rect = self.background.get_rect()
 
-        # Load button for launch the game
-        self.play = pygame.image.load("Asset/bouton_play.png")
-        self.play = pygame.transform.scale(self.play, (400, 160))
-        self.play_rect = self.play.get_rect()
-        self.play_rect.x = math.ceil(self.screen.get_width() / 2.5)
-        self.play_rect.y = math.ceil(self.screen.get_height() / 4)
-
-        # Load button for quit the game
-        self.quit = pygame.image.load("Asset/bouton_quit.png")
-        self.quit = pygame.transform.scale(self.quit, (300, 100))
-        self.quit_rect = self.quit.get_rect()
-        self.quit_rect.x = math.ceil(self.screen.get_width() / 4)
-        self.quit_rect.y = math.ceil(self.screen.get_height() / 2)
-
-        # Define if the game has started or not
+        # Define the game has started
         self.is_playing = False
 
         # Generate player
-        self.player = Player(100, 500, "Asset/Llusern.png", 200, 160, self)
-        self.enemy = Enemy(900, 450, "Asset/Pangolin.png", 150, 200, self, (1, 0), 100)
+        self.player = Player(100, 500, "Assets/Llusern.png", 200, 160, self)
+        self.enemy = Enemy(900, 450, "Assets/Pangolin.png", 150, 200, self, "Bat", (1, 1), 100)
+        self.enemy = Enemy(900, 450, "Assets/Pangolin.png", 150, 200, self, "Tatoo", (1, 1), 100)
         self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
 
         # Generate plateforme
-        self.plateforme = Plateforme(900, 450, 500, 250, "Asset/bouton_jouer.png", True, (-1, 1), 100)
-
+        self.plateforme = Plateforme(900, 600, 400, 100, "Assets/jouer.png", True, (-1, 1), 100)
 
         # Generate menus
         self.play_fr = Play_fr(self)
@@ -105,88 +93,88 @@ class Game:
         self.current_screen = "main_fr"
 
     def create_menus(self):
-        # Main french menus
-        self.play_fr = Play_fr(self)
-        self.quit_fr = Quit_fr(self)
-        self.settings_fr = Settings_fr(self)
-        self.main_fr_menus.add(self.play_fr, self.quit_fr, self.settings_fr)
+            # Main french menus
+            self.play_fr = Play_fr(self)
+            self.quit_fr = Quit_fr(self)
+            self.settings_fr = Settings_fr(self)
+            self.main_fr_menus.add(self.play_fr, self.quit_fr, self.settings_fr)
 
-        # Settings french menus
-        self.retour = Retour(self)
-        self.lang_fr = Language_fr(self)
-        self.settings_fr_menus.add(self.retour, self.lang_fr)
+            # Settings french menus
+            self.retour = Retour(self)
+            self.lang_fr = Language_fr(self)
+            self.settings_fr_menus.add(self.retour, self.lang_fr)
 
-        # Main english menus
-        self.play_en = Play_en(self)
-        self.quit_en = Quit_en(self)
-        self.settings_en = Settings_en(self)
-        self.main_en_menus.add(self.play_en, self.quit_en, self.settings_en)
+            # Main english menus
+            self.play_en = Play_en(self)
+            self.quit_en = Quit_en(self)
+            self.settings_en = Settings_en(self)
+            self.main_en_menus.add(self.play_en, self.quit_en, self.settings_en)
 
-        # Settings english menus
-        self.back = Back(self)
-        self.lang_en = Language_en(self)
-        self.settings_en_menus.add(self.back, self.lang_en)
+            # Settings english menus
+            self.back = Back(self)
+            self.lang_en = Language_en(self)
+            self.settings_en_menus.add(self.back, self.lang_en)
 
     def choice_menus(self, event):
-        if self.current_screen == "main_fr":
-            # If play is clicked
-            if self.play_fr.rect.collidepoint(event.pos):
-                self.current_screen = "play_fr"
-                self.is_playing = True
+            if self.current_screen == "main_fr":
+                # If play is clicked
+                if self.play_fr.rect.collidepoint(event.pos):
+                    self.current_screen = "play_fr"
+                    self.is_playing = True
 
-                if self.is_playing:
-                    # Play sound
-                    self.sound_manager.play('click')
+                    if self.is_playing:
+                        # Play sound
+                        self.sound_manager.play('click')
 
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+                        self.current_screen = "main_fr"
+
+                # If settings button is clicked
+                elif self.settings_fr.rect.collidepoint(event.pos):
+                    self.current_screen = "settings_fr"
+
+                # If quit is clicked
+                elif self.quit_fr.rect.collidepoint(event.pos):
+                    pygame.quit()
+
+            elif self.current_screen == "settings_fr":
+                # If retour is clicked
+                if self.retour.rect.collidepoint(event.pos):
                     self.current_screen = "main_fr"
 
-            # If settings button is clicked
-            elif self.settings_fr.rect.collidepoint(event.pos):
-                self.current_screen = "settings_fr"
+                # If language is clicked
+                elif self.lang_fr.rect.collidepoint(event.pos):
+                    self.current_screen = "settings_en"
 
-            # If quit is clicked
-            elif self.quit_fr.rect.collidepoint(event.pos):
-                pygame.quit()
+            elif self.current_screen == "main_en":
+                # If play is clicked
+                if self.play_en.rect.collidepoint(event.pos):
+                    self.current_screen = "play_en"
+                    self.is_playing = True
 
-        elif self.current_screen == "settings_fr":
-            # If retour is clicked
-            if self.retour.rect.collidepoint(event.pos):
-                self.current_screen = "main_fr"
+                    if self.is_playing:
+                        # Play sound
+                        self.sound_manager.play('click')
 
-            # If language is clicked
-            elif self.lang_fr.rect.collidepoint(event.pos):
-                self.current_screen = "settings_en"
+                    if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+                        self.current_screen = "main_en"
 
-        elif self.current_screen == "main_en":
-            # If play is clicked
-            if self.play_en.rect.collidepoint(event.pos):
-                self.current_screen = "play_en"
-                self.is_playing = True
+                # If settings button is clicked
+                elif self.settings_en.rect.collidepoint(event.pos):
+                    self.current_screen = "settings_en"
 
-                if self.is_playing:
-                    # Play sound
-                    self.sound_manager.play('click')
+                # If quit is clicked
+                elif self.quit_en.rect.collidepoint(event.pos):
+                    pygame.quit()
 
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_b and self.is_playing:
+            elif self.current_screen == "settings_en":
+                # If retour is clicked
+                if self.back.rect.collidepoint(event.pos):
                     self.current_screen = "main_en"
 
-            # If settings button is clicked
-            elif self.settings_en.rect.collidepoint(event.pos):
-                self.current_screen = "settings_en"
-
-            # If quit is clicked
-            elif self.quit_en.rect.collidepoint(event.pos):
-                pygame.quit()
-
-        elif self.current_screen == "settings_en":
-            # If retour is clicked
-            if self.back.rect.collidepoint(event.pos):
-                self.current_screen = "main_en"
-
-            # If language is clicked
-            elif self.lang_en.rect.collidepoint(event.pos):
-                self.current_screen = "settings_fr"
+                # If language is clicked
+                elif self.lang_en.rect.collidepoint(event.pos):
+                    self.current_screen = "settings_fr"
 
     def update(self):
         # Application of my player image
@@ -204,10 +192,11 @@ class Game:
 
         # Application of the set of images of our platforms group
         self.all_plateforme.draw(self.screen)
-
+        
         # Apply the obscurity one the player
         self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
 
+        # Apply gravity and handle input as before
         self.apply_gravity()
         self.handle_input()
 
@@ -231,6 +220,7 @@ class Game:
 
         elif self.pressed[pygame.K_d] and self.player.rect.x + self.player.rect.width < self.screen.get_width():
             self.player.move_right()
+                
             if self.pressed[pygame.K_SPACE]:
                 self.is_jump = True
                 if self.is_jump:
@@ -247,7 +237,6 @@ class Game:
         self.player.position[1] += self.vertical_velocity
         self.is_jump = False
 
-
     def run(self):
 
         clock = pygame.time.Clock()
@@ -258,10 +247,28 @@ class Game:
         while running:
 
             self.player.update()
-            self.plateforme.move(1)
+
+            # self.plateforme.move(1)
             
             self.enemy.move(1)
+
             self.screen.blit(self.background, (0, 0))
+
+            if self.current_screen == "main_fr":
+                self.screen.blit(self.background, (0, 0))
+                self.main_fr_menus.draw(self.screen)
+
+            elif self.current_screen == "settings_fr":
+                self.screen.blit(self.background_2, (0, 0))
+                self.settings_fr_menus.draw(self.screen)
+
+            elif self.current_screen == "main_en":
+                self.screen.blit(self.background, (0, 0))
+                self.main_en_menus.draw(self.screen)
+
+            elif self.current_screen == "settings_en":
+                self.screen.blit(self.background_3, (0, 0))
+                self.settings_en_menus.draw(self.screen)
 
             elif self.current_screen == "play_fr":
                 self.screen.blit(self.background, (0, 0))

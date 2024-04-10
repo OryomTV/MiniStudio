@@ -1,4 +1,5 @@
 import pygame
+from random import randint
 
 
 class Entity(pygame.sprite.Sprite):
@@ -33,7 +34,6 @@ class Entity(pygame.sprite.Sprite):
     def update(self):
         self.rect.topleft = self.position
 
-
 class Player(Entity):
 
     def __init__(self, x, y, image_path, width, height, game):
@@ -51,34 +51,52 @@ class Player(Entity):
         # Load image
         surface.blit(self.image, self.rect)
 
-
 class Enemy(Entity):
 
-    def __init__(self, x, y, image_path, width, height, game, direction, max_distance):
+    def __init__(self, x, y, image_path, width, height, game, type, direction, max_distance):
         super().__init__(x, y, game)
 
         # Information about enemy
         self.original_image = pygame.image.load(image_path).convert_alpha()
         self.image = pygame.transform.scale(self.original_image, (width, height))
+        self.original_image = pygame.transform.scale(self.original_image, (width, height))
         self.rect = self.image.get_rect()
         self.rect.x = self.position[0]
         self.rect.y = self.position[1]
         self.distance_moved = 0
         self.direction_X = direction[0]
-        self.direction_Y = 0
+        self.direction_Y = direction[1]
         self.max_distance = max_distance
+        self.type = type
 
     def move(self, speed):
+        if self.type == "Tatoo":
+            self.rect.x += speed * self.direction_X
 
-        self.rect.x += speed * self.direction_X
+            if self.max_distance is not None:
+                self.distance_moved += speed
 
-        if self.max_distance is not None:
-            self.distance_moved += speed
+            if self.max_distance is not None and self.distance_moved >= self.max_distance:
+                self.direction_X *= -1
+                self.distance_moved = 0 - self.distance_moved
 
-        if self.max_distance is not None and self.distance_moved >= self.max_distance:
-            self.direction_X *= -1
-            self.distance_moved = 0
+        elif self.type == "Bat":
+            speed *= 2
+            self.rect.x += speed * self.direction_X
+            self.rect.y += speed * self.direction_Y
 
+            if randint(1, 100) <= 5:
+                self.direction_X *= -1
+
+            if randint(1, 100) <= 2:
+                self.direction_Y *= -1
+
+        if self.direction_Y < 0:
+            # If moving up, flip the image vertically
+            self.image = pygame.transform.flip(self.original_image, True, False)
+        else:
+            # Otherwise, keep the original image
+            self.image = self.original_image
 
     def draw(self, surface):
         # Draw the enemy on the surface
