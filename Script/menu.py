@@ -57,7 +57,7 @@ class Retour(Menu):
         super().__init__(game, "retour", (250, 80))
 
         self.retour_rect = self.rect
-        self.retour_rect.x = math.ceil(self.game.screen.get_width() / 2.36)
+        self.retour_rect.x = math.ceil(self.game.screen.get_width() / 2.34)
         self.retour_rect.y = math.ceil(self.game.screen.get_height() / 1.27)
 
 
@@ -100,10 +100,10 @@ class Quit_en(Menu):
 
 class Back(Menu):
     def __init__(self, game):
-        super().__init__(game, "back", (250, 80))
+        super().__init__(game, "back", (200, 80))
 
         self.back_rect = self.rect
-        self.back_rect.x = math.ceil(self.game.screen.get_width() / 2.36)
+        self.back_rect.x = math.ceil(self.game.screen.get_width() / 2.28)
         self.back_rect.y = math.ceil(self.game.screen.get_height() / 1.27)
 
 

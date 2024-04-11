@@ -18,6 +18,7 @@ class Plateforme(pygame.sprite.Sprite):
         self.view = view
         self.debugSurf = pygame.Surface((width, height))
         self.debugSurf.fill((255, 0, 0))
+        self.debugSurf.set_colorkey((255, 0, 0))
         self.collided_player = None
         self.max_distance_to_child = 90000
 

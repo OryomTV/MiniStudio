@@ -27,7 +27,7 @@ class Game:
         self.background_4 = pygame.transform.scale(self.background_4, (1920, 1080))
         self.rect = self.background.get_rect()
 
-        self.display = pygame.Surface((1920, 1080))
+        self.display = pygame.Surface((500, 500))
         # Define the game has started
         self.is_playing = False
 
@@ -49,15 +49,22 @@ class Game:
             'decoration': load_images('tiles/decoration', size=(64, 64))
         }
 
+
         # Generate player
-        self.player = Player(self, (800, 120), 'Assets/Entities/Llursen.png', 80, 100)
-        
-        self.enemy = Enemy(self, (900, 450), "Assets/Entities/Bat.png", 150, 200, "Tatoo",(1, 0), 100)
-        
+        self.player = Player(self, (250, 790), 80, 80)
+
+        self.enemy = Enemy(self, (900, 450), "Assets/Entities/Bat.png", 150, 200, "Bat",(1, 1), 100)
+
         self.ground = Ground(0, 900, 1920, 180, (0, 0, 0))
+
+        self.plateforme = Plateforme(735, 840, 130, 25, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
+        self.plateforme_2 = Plateforme(840, 692, 130, 25, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
+        self.plateforme_3 = Plateforme(669, 555, 130, 25, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
+        self.plateforme_4 = Plateforme(359, 448, 130, 25, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
+        self.plateforme_5 = Plateforme(417, 280, 130, 25, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
         
-        self.plateforme = Plateforme(900, 600, 600, 400, "Assets/Tuto/tiles/platform/platform1_tuto.png", True, (-1, 1), 100)
-        self.plateformes_rect_rect = [self.plateforme.rect]
+        self.plateformes_rect_rect = [self.plateforme.rect, self.plateforme_2.rect, self.plateforme_3.rect, self.plateforme_4.rect, self.plateforme_5.rect]
+
         self.menu = CreateMenu(self)
 
         self.tilemap = Tilemap(self, tile_size=64)
@@ -78,8 +85,8 @@ class Game:
         self.all_grounds = pygame.sprite.Group()
         self.all_grounds.add(self.ground)
 
-        self.all_plateforme = pygame.sprite.Group()
-        self.all_plateforme.add(self.plateforme)
+        self.plateformes = pygame.sprite.Group()
+        self.plateformes.add(self.plateforme, self.plateforme_2, self.plateforme_3, self.plateforme_4, self.plateforme_5)
 
         self.all_menus = pygame.sprite.Group()
 
@@ -119,6 +126,11 @@ class Game:
         self.menu.current_screen = "main_fr"
 
     def draw(self):
+
+        # Application of the set of images of our platforms group
+        for plateforme in self.plateformes:
+            plateforme.draw(self.screen)
+
         # Application of my player image
         self.player.draw(self.screen)
 
@@ -126,22 +138,14 @@ class Game:
         for enemy in self.all_enemies:
             self.screen.blit(enemy.image, enemy.rect)
 
-        self.plateforme.draw(self.screen)
         # Application of the set of images of my monsters group
-        #self.all_enemies.draw(self.screen)
-
-        # Application of the set of images of my grounds group
-        #self.all_grounds.draw(self.screen)
-
-        # Application of the set of images of our platforms group
-        #self.all_plateforme.draw(self.screen)
+        self.all_enemies.draw(self.screen)
 
         # Apply the obscurity one the player
-        #self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
+        self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
         
 
     def update(self):
-        self.plateforme.move(1)
         self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.delta_time, self.plateformes_rect_rect)
         self.enemy.move(1)
 
@@ -167,7 +171,6 @@ class Game:
 
             self.handle_input()
             self.update()
-            
 
             self.menu.load_different_screens()
 
