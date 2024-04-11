@@ -91,7 +91,13 @@ class Game:
 
         self.movement = 0
 
-        self.delta_time = 0
+        self.delta_time = 0.0
+
+        # Dash
+
+        self.player_should_dash = False
+        self.dash_direction = False
+        
         # Manage sounds
         self.sound_manager = SoundManager()
 
@@ -142,7 +148,7 @@ class Game:
 
     def update(self):
         self.plateforme.move(1)
-        self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.delta_time, self.plateformes_rect_rect)
+        self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.player_should_dash, self.dash_direction, self.delta_time, self.plateformes_rect_rect)
         self.enemy.move(1)
 
 
@@ -150,6 +156,8 @@ class Game:
         self.pressed = pygame.key.get_pressed()
         self.movement = self.pressed[pygame.K_d] - self.pressed[pygame.K_q]
         self.player_should_jump = self.pressed[pygame.K_SPACE]
+        self.player_should_dash = self.pressed[pygame.K_c]
+        self.dash_direction = self.pressed[pygame.K_q]
 
     def run(self):
 
@@ -190,7 +198,7 @@ class Game:
                             self.menu.current_screen = "main_fr" if self.menu.current_screen == "play_fr" else "main_en"
                             self.is_playing = False
 
-            self.delta_time = clock.tick(60) / 1000
+            self.delta_time = clock.tick(60) / 1000.0
 
         pygame.quit()
         sys.exit()
