@@ -97,6 +97,7 @@ class Player(Entity):
         self.air_resistance = 1
         self.dash_velocity = 0
         self.cooldown_dash_time = 2.0
+        self.onDash = True
     
     def check_collisions(self, group):
         for other_sprite in group:
@@ -131,9 +132,6 @@ class Player(Entity):
             self.TryToDash(dash_direction)
             self.dash_dispo = False
         
-
-
-        
     def TryToJump(self):
         if self.collisions["down"]:
             self.velocity = (self.velocity[0], self.jump_force)
@@ -156,10 +154,12 @@ class Player(Entity):
         self.velocity = (self.velocity[0], self.velocity[1] + GRAVITY * delta_time)
         
         if self.dash_velocity != 0:
+            self.onDash = True
             collision_detected = False
             for rect in tilemap.physics_rects_around(self.rect.midbottom):
                 if rect.collidepoint(self.rect.x, self.rect.y):
                     collision_detected = True
+                    self.dash_velocity = 0
 
             if not collision_detected:
                 self.rect.x += self.dash_velocity
@@ -167,12 +167,8 @@ class Player(Entity):
                     self.dash_velocity -= self.air_resistance
                 elif self.dash_velocity < 0 :
                     self.dash_velocity += self.air_resistance    
-        
-
-
-
-
-
+        else:
+            self.onDash = False
         
     def move_player(self, tilemap, movement, delta_time, plateformes):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
@@ -228,6 +224,7 @@ class Enemy(Entity):
         self.direction_Y = direction[1]
         self.max_distance = max_distance
         self.type = type
+        self.Alive = True
 
     def move(self, speed):
         if self.type == "Tatoo":
@@ -257,7 +254,3 @@ class Enemy(Entity):
         else:
             # Otherwise, keep the original image
             self.image = self.original_image
-
-    def draw(self, surface):
-        # Draw the enemy on the surface
-        surface.blit(self.image, self.rect)

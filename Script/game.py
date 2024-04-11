@@ -119,8 +119,6 @@ class Game:
 
     def game_over(self):
         # Reload the game
-        self.all_enemies = pygame.sprite.Group()
-        self.player.health = self.player.maxHealth
         self.player.position = [100, 500]
         self.menu.current_screen = "main_fr"
 
@@ -130,7 +128,8 @@ class Game:
 
         # Application of the monster image
         for enemy in self.all_enemies:
-            self.screen.blit(enemy.image, enemy.rect)
+            if self.enemy.Alive:
+                self.screen.blit(enemy.image, enemy.rect)
 
         self.plateforme.draw(self.screen)
         # Application of the set of images of my monsters group
@@ -150,6 +149,15 @@ class Game:
         self.plateforme.move(1)
         self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.player_should_dash, self.dash_direction, self.delta_time, self.plateformes_rect_rect)
         self.enemy.move(1)
+        for enemy in self.all_enemies:
+            if self.enemy.Alive and self.player.rect.colliderect(enemy.rect):
+                if self.player.onDash:
+                    self.enemy.Alive = False
+                else:
+                    self.game_over()
+                    for enemy in self.all_enemies:
+                        self.enemy.Alive = True
+                    
 
 
     def handle_input(self):
