@@ -80,9 +80,21 @@ class Player(Entity):
         self.rect = self.image.get_rect(midbottom=self.position)
         self.bigger_rect = self.rect.copy()
         self.bigger_rect.inflate_ip(30, 30)
+        
         self.jump_force = -540
-        self.velocity = (200, 0)
+        self.velocity = [500, 0]
+        self.doubleSaut = True
+        self.time_since_last_jump = 0.0
+        self.cooldown_jump_time = 0.5
 
+        #Dash
+        self.time_since_last_dash = 0.0 
+        self.dash_dispo = True
+        self.air_resistance = 1
+        self.dash_velocity = 0
+        self.cooldown_dash_time = 2.0
+        self.onDash = True
+    
     def check_collisions(self, group):
         for other_sprite in group:
             if self != other_sprite and pygame.sprite.collide_rect(self, other_sprite):
@@ -96,23 +108,63 @@ class Player(Entity):
         # surface.blit(surf, self.rect)
         surface.blit(self.image, self.rect)
         
-    def Update(self, tilemap, movement, should_jump, delta_time, plateformes):
+    def Update(self, tilemap, movement, should_jump, should_dash, dash_direction, delta_time, plateformes):
         self.rect.midbottom = self.position
         # self.bigger_rect.center = self.rect.center
-        self.ApplyGravity(delta_time)
+        self.ApplyGravity(tilemap,delta_time)
         if should_jump:
             self.TryToJump()
         else:
             if self.velocity[1] < 0:
                 self.velocity = self.velocity[0], self.velocity[1] * .9
         self.move_player(tilemap, movement, delta_time, plateformes)
+        self.time_since_last_jump += delta_time
+        self.time_since_last_dash += delta_time
+
+        if self.collisions["down"] and self.time_since_last_dash >= self.cooldown_dash_time:
+            self.dash_dispo = True
+
+        if should_dash and self.dash_dispo:
+            self.TryToDash(dash_direction)
+            self.dash_dispo = False
         
     def TryToJump(self):
         if self.collisions["down"]:
             self.velocity = (self.velocity[0], self.jump_force)
+            self.doubleSaut = True
+            self.time_since_last_jump = 0.0
+        elif self.doubleSaut and self.time_since_last_jump >= self.cooldown_jump_time: 
+            self.velocity = (self.velocity[0], self.jump_force)
+            self.doubleSaut = False
+
+    def TryToDash(self, mouvement):
+        if  not mouvement:
+            self.dash_velocity = 30 
+        else:
+            self.dash_velocity = -30   
+        self.time_since_last_dash = 0.0 
+        self.dash_dispo = False        
+
         
-    def ApplyGravity(self, delta_time):
+    def ApplyGravity(self, tilemap, delta_time):
         self.velocity = (self.velocity[0], self.velocity[1] + GRAVITY * delta_time)
+        
+        if self.dash_velocity != 0:
+            self.onDash = True
+            collision_detected = False
+            for rect in tilemap.physics_rects_around(self.rect.midbottom):
+                if rect.collidepoint(self.rect.x, self.rect.y):
+                    collision_detected = True
+                    self.dash_velocity = 0
+
+            if not collision_detected:
+                self.rect.x += self.dash_velocity
+                if self.dash_velocity > 0 :
+                    self.dash_velocity -= self.air_resistance
+                elif self.dash_velocity < 0 :
+                    self.dash_velocity += self.air_resistance    
+        else:
+            self.onDash = False
         
     def move_player(self, tilemap, movement, delta_time, plateformes):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
@@ -168,7 +220,7 @@ class Enemy(Entity):
         self.direction_Y = direction[1]
         self.max_distance = max_distance
         self.type = type
-        self.animation = 0
+        self.Alive = True
 
     def move(self, speed):
         if self.type == "Tatoo":

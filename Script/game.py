@@ -91,7 +91,13 @@ class Game:
         self.player_should_jump = False
         self.pressed = {}
         self.movement = 0
-        self.delta_time = 0
+
+        self.delta_time = 0.0
+
+        # Dash
+
+        self.player_should_dash = False
+        self.dash_direction = False
         
         # Manage sounds
         pygame.mixer.init()  # Initialisation du mixer de Pygame
@@ -117,8 +123,6 @@ class Game:
 
     def game_over(self):
         # Reload the game
-        self.all_enemies = pygame.sprite.Group()
-        self.player.health = self.player.maxHealth
         self.player.position = [100, 500]
         self.menu.current_screen = "main_fr"
 
@@ -132,7 +136,8 @@ class Game:
 
         # Application of the monster image
         for enemy in self.all_enemies:
-            self.screen.blit(enemy.image, enemy.rect)
+            if self.enemy.Alive:
+                self.screen.blit(enemy.image, enemy.rect)
 
         # Application of the set of images of my monsters group
         self.all_enemies.draw(self.screen)
@@ -141,13 +146,17 @@ class Game:
         self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
         
     def update(self):
-        self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.delta_time, self.plateformes_rect_rect)
+        self.plateforme.move(1)
+        self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.player_should_dash, self.dash_direction, self.delta_time, self.plateformes_rect_rect)
         self.enemy.move(1)
+
 
     def handle_input(self):
         self.pressed = pygame.key.get_pressed()
         self.movement = self.pressed[pygame.K_d] - self.pressed[pygame.K_q]
         self.player_should_jump = self.pressed[pygame.K_SPACE]
+        self.player_should_dash = self.pressed[pygame.K_c]
+        self.dash_direction = self.pressed[pygame.K_q]
 
     def run(self):
         clock = pygame.time.Clock()
@@ -185,7 +194,7 @@ class Game:
                             self.menu.current_screen = "main_fr" if self.menu.current_screen == "play_fr" else "main_en"
                             self.is_playing = False
 
-            self.delta_time = clock.tick(60) / 1000
+            self.delta_time = clock.tick(60) / 1000.0
 
         pygame.quit()
         sys.exit()
