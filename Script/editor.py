@@ -30,6 +30,9 @@ class Editor:
             'platform': load_images('tiles/platform', size=(250, 250)),
             'recess_alternative': load_images('tiles/recess/alternatif', size=(64, 64)),
             'recess_normal': load_images('tiles/recess/normal', size=(64, 64)),
+            'cathedral': load_images('tiles/cathedral', size=(64, 64)),
+            'pillar': load_images('tiles/pillar', size=(100, 250)),
+            'ground_floor': load_images('tiles/ground_floor', size=(64, 64))
         }
 
         self.movement = [False, False, False, False]

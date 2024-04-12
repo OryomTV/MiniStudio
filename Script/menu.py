@@ -122,6 +122,8 @@ class CreateMenu:
 
         # Current screen
         self.current_screen = "main_fr"
+        # Title
+        self.titre = pygame.image.load("Assets/Menu/Title.png")
 
         # Menus
         self.main_fr_menus = pygame.sprite.Group()
@@ -157,16 +159,20 @@ class CreateMenu:
 
     def load_different_screens(self):
         if self.current_screen == "main_fr":
+            self.game.screen.fill((0, 0, 0))
             self.game.screen.blit(self.game.background, (0, 0))
             self.main_fr_menus.draw(self.game.screen)
+            self.game.screen.blit(self.titre, (430, 50))
 
         elif self.current_screen == "settings_fr":
             self.game.screen.blit(self.game.background_2, (0, 0))
             self.settings_fr_menus.draw(self.game.screen)
 
         elif self.current_screen == "main_en":
+            self.game.screen.fill((0, 0, 0))
             self.game.screen.blit(self.game.background, (0, 0))
             self.main_en_menus.draw(self.game.screen)
+            self.game.screen.blit(self.titre, (430, 50))
 
         elif self.current_screen == "settings_en":
             self.game.screen.blit(self.game.background_3, (0, 0))
@@ -175,11 +181,27 @@ class CreateMenu:
         elif self.current_screen == "play_fr" or self.current_screen == "play_en":
             self.game.screen.blit(self.game.background, (0, 0))
             self.game.draw()
+            self.game.player.Update(self.game.tilemap, self.game.movement, self.game.player_should_jump,
+                                    self.game.delta_time,
+                                    self.game.plateformes_rect_rect)
+            self.game.update()
+            self.game.transparent_cube()
             #self.game.transparent_cube()
 
         elif self.current_screen == "level_2":
             self.game.screen.blit(self.game.background_4, (0, 0))
             self.game.draw()
+            self.game.player.Update(self.game.tilemap2, self.game.movement, self.game.player_should_jump,
+                                    self.game.delta_time,
+                                    self.game.plateformes_rect_rect)
+            self.game.update()
+
+        elif self.current_screen == "level_3":
+            self.game.screen.blit(self.game.background_4, (0, 0))
+            self.game.player.Update(self.game.tilemap3, self.game.movement, self.game.player_should_jump,
+                                    self.game.delta_time,
+                                    self.game.plateformes_rect_rect)
+            self.game.update()
 
     def choice_menus(self, event):
         if self.current_screen == "main_fr":

@@ -1,12 +1,13 @@
 import sys
 import pygame
+import math
 
 from entity import Player, Enemy
 from ground import Ground
 from plateforme import Plateforme
 from obscurity import Obscurity
 from sounds import SoundManager
-from menu import CreateMenu
+from menu import *
 from tilemap import Tilemap
 from utils import load_images, load_image
 from Constants import *
@@ -44,7 +45,10 @@ class Game:
             'recess_alternative': load_images('tiles/recess/alternatif', size=(64, 64)),
             'recess_normal': load_images('tiles/recess/normal', size=(64, 64)),
             'player': load_images('tiles/recess/normal'),
-            'decoration': load_images('tiles/decoration', size=(64, 64))
+            'decoration': load_images('tiles/decoration', size=(64, 64)),
+            'cathedral': load_images('tiles/cathedral', size=(64, 64)),
+            'pillar': load_images('tiles/pillar', size=(100, 250)),
+            'ground_floor': load_images('tiles/ground_floor', size=(64, 64))
         }
 
         # Generate player
@@ -66,6 +70,12 @@ class Game:
 
         self.tilemap = Tilemap(self, tile_size=64)
         self.tilemap.load("Script/map.json")
+
+        self.tilemap2 = Tilemap(self, tile_size=64)
+        self.tilemap2.load("Script/map2.json")
+
+        self.tilemap3 = Tilemap(self, tile_size=64)
+        self.tilemap3.load("Script/map3.json")
 
         self.scroll = [0, 0]
 
@@ -107,11 +117,29 @@ class Game:
         self.transparent_surface = pygame.Surface((100, 100), pygame.SRCALPHA)
         pygame.draw.rect(self.transparent_surface, (0, 0, 0, 0), self.transparent_surface.get_rect())
 
+        # Cube for pass to level 3
+        self.cube2 = pygame.Rect(1000, 700, 100, 100)
+        self.transparent_surface = pygame.Surface((100, 100), pygame.SRCALPHA)
+        pygame.draw.rect(self.transparent_surface, (0, 0, 0, 0), self.transparent_surface.get_rect())
+
     def transparent_cube(self):
         # Check if player and cube collides
         if self.player.rect.colliderect(self.cube):
             self.menu.current_screen = "level_2"
+            self.tilemap2.render(self.background_4)
+            self.player.position = [100, 100]  # Change les valeurs en fonction de là ou tu veux que le joueur soit (t'es pas con je le sais mais je dis quand même)
+
+        elif self.player.rect.colliderect(self.cube2):
+            self.menu.current_screen = "level_3"
+            self.tilemap3.render(self.background_4)
             self.player.position = [100, 100]
+
+        # J'ai pas testé si c'était bon parce que j'ai plus le perso mais normalement ça devrait être bon
+        # Et du coup pour faire les zones où on meurt dans le vide t'as juste à créer des zones de collisions et que tu meurs dedans genre
+        if self.menu.current_screen == "play_fr" or self.menu.current_screen == "play_en":
+            self.screen.blit(self.transparent_surface, self.cube)
+        elif self.menu.current_screen == "level_2":
+            self.screen.blit(self.transparent_surface, self.cube2)
 
         self.screen.blit(self.transparent_surface, self.cube)
 

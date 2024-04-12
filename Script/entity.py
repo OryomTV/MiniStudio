@@ -74,7 +74,9 @@ class Player(Entity):
     def __init__(self, game, pos, width, height):
         super().__init__(pos, game)
 
-        self.original_image = pygame.image.load(WALK_ANIM[0]).convert_alpha()
+        # Information about player
+        self.var_anim = 0
+        self.original_image = pygame.image.load(WALK_ANIM[self.var_anim]).convert_alpha()
         self.image = pygame.transform.scale(self.original_image, (width, height))
         self.original_image = pygame.transform.scale(self.original_image, (width, height))
         self.rect = self.image.get_rect(midbottom=self.position)
@@ -82,7 +84,6 @@ class Player(Entity):
         self.bigger_rect.inflate_ip(30, 30)
         self.jump_force = -540
         self.velocity = (200, 0)
-
     def check_collisions(self, group):
         for other_sprite in group:
             if self != other_sprite and pygame.sprite.collide_rect(self, other_sprite):
