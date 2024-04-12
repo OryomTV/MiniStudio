@@ -76,7 +76,7 @@ class Player(Entity):
 
         # Information about player
         self.var_anim = 0
-        self.original_image = pygame.image.load(WALK_ANIM[self.var_anim]).convert_alpha()
+        self.original_image = pygame.image.load(WALK_ANIM_PATHS[self.var_anim]).convert_alpha()
         self.image = pygame.transform.scale(self.original_image, (width, height))
         self.original_image = pygame.transform.scale(self.original_image, (width, height))
         self.rect = self.image.get_rect(midbottom=self.position)
@@ -100,9 +100,44 @@ class Player(Entity):
         self.onDash = True
 
         self.facingRight = True
+        self.movement = 0
 
 
+        self.relevant_anim = ""
+        self.relevant_anim_frame_count = 0
+        self.current_anim_frame = 0
+        self.anims = {
+            "Walking": LoadAnimFolder(WALK_ANIM_PATHS, (width, height)),
+            "Idle": [pygame.transform.scale(pygame.image.load(WALK_ANIM_PATHS[0]), (width, height))],
+            "Jumping": [pygame.transform.scale(pygame.image.load("Assets\Entities\Llursen-Saut-1.png"), (width, height))],
+            "Falling": [pygame.transform.scale(pygame.image.load("Assets\Entities\Llursen-Saut-2.png"), (width, height))]
+        }
 
+    def get_relevant_anim(self):
+        if not self.collisions["down"]:
+            if self.velocity[1] > 50:
+                return "Falling"
+            elif self.velocity[1] < 0:
+                return "Jumping"
+
+        if self.movement != 0:
+            print("returned Walking")
+            return "Walking"
+        else:
+            return "Idle"
+
+    def UpdateSprite(self):
+
+        self.current_anim_frame += .08
+
+        relevant_anim = self.get_relevant_anim()
+        if self.relevant_anim != relevant_anim: # new animation
+            # self.current_anim_frame = 0 # start this anim from 0
+            self.relevant_anim = relevant_anim
+            self.relevant_anim_frame_count = len(self.anims[relevant_anim])
+
+        raw_unflipped_sprite = self.anims[relevant_anim][int(self.current_anim_frame) % self.relevant_anim_frame_count]
+        return pygame.transform.flip(raw_unflipped_sprite, not self.facingRight, False)
 
     def check_collisions(self, group):
         for other_sprite in group:
@@ -115,7 +150,8 @@ class Player(Entity):
         # surf = pygame.Surface((self.rect.width, self.rect.height))
         # surf.fill((255, 0, 0))
         # surface.blit(surf, self.rect)
-        surface.blit(pygame.transform.flip(self.image, not self.facingRight, False), self.rect)
+        surface.blit(self.image, self.rect)
+        # surface.blit(pygame.transform.flip(self.image, not self.facingRight, False), self.rect)
         
     def Update(self, tilemap, movement, should_jump, should_dash, dash_direction, delta_time, plateformes):
         self.rect.midbottom = self.position
@@ -136,6 +172,8 @@ class Player(Entity):
         if should_dash and self.dash_dispo:
             self.TryToDash(dash_direction)
             self.dash_dispo = False
+
+        self.image = self.UpdateSprite()
         
     def TryToJump(self):
         if self.collisions["down"]:
@@ -184,6 +222,8 @@ class Player(Entity):
             self.facingRight = True
         elif movement < 0:
             self.facingRight = False
+
+        self.movement = movement
 
         frame_movement = (movement * self.velocity[0],  self.velocity[1]) # movement[1] + 
         
