@@ -74,9 +74,7 @@ class Player(Entity):
     def __init__(self, game, pos, width, height):
         super().__init__(pos, game)
 
-        # Information about player
-        self.var_anim = 0
-        self.original_image = pygame.image.load(WALK_ANIM[self.var_anim]).convert_alpha()
+        self.original_image = pygame.image.load(WALK_ANIM[0]).convert_alpha()
         self.image = pygame.transform.scale(self.original_image, (width, height))
         self.original_image = pygame.transform.scale(self.original_image, (width, height))
         self.rect = self.image.get_rect(midbottom=self.position)
@@ -84,7 +82,7 @@ class Player(Entity):
         self.bigger_rect.inflate_ip(30, 30)
         self.jump_force = -540
         self.velocity = (200, 0)
-    
+
     def check_collisions(self, group):
         for other_sprite in group:
             if self != other_sprite and pygame.sprite.collide_rect(self, other_sprite):
@@ -117,10 +115,6 @@ class Player(Entity):
         self.velocity = (self.velocity[0], self.velocity[1] + GRAVITY * delta_time)
         
     def move_player(self, tilemap, movement, delta_time, plateformes):
-        
-
-        # change sprite par WALK_ANIM[self.animation]
-
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         
         frame_movement = (movement * self.velocity[0],  self.velocity[1]) # movement[1] + 
@@ -155,7 +149,7 @@ class Player(Entity):
         
         self.position = self.rect.midbottom
         # self.velocity = (self.velocity[0], min(5, self.velocity[1] + 0.1))
-        self.var_anim += 1
+
 
 class Enemy(Entity):
 

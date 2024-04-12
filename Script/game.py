@@ -1,21 +1,18 @@
 import sys
 import pygame
-import math
 
-from entity import Player
-from entity import Enemy
+from entity import Player, Enemy
 from ground import Ground
 from plateforme import Plateforme
 from obscurity import Obscurity
 from sounds import SoundManager
-from menu import *
+from menu import CreateMenu
 from tilemap import Tilemap
 from utils import load_images, load_image
 from Constants import *
-
 class Game:
-
     def __init__(self):
+        pygame.init()  # Initialisation de Pygame
 
         # Create window of the game
         pygame.display.set_caption("Shining")
@@ -28,6 +25,7 @@ class Game:
         self.rect = self.background.get_rect()
 
         self.display = pygame.Surface((500, 500))
+
         # Define the game has started
         self.is_playing = False
 
@@ -48,7 +46,6 @@ class Game:
             'player': load_images('tiles/recess/normal'),
             'decoration': load_images('tiles/decoration', size=(64, 64))
         }
-
 
         # Generate player
         self.player = Player(self, (250, 790), 80, 80)
@@ -91,19 +88,19 @@ class Game:
         self.all_menus = pygame.sprite.Group()
 
         # Velocity jump
-
         self.player_should_jump = False
-
         self.pressed = {}
-
         self.movement = 0
-
         self.delta_time = 0
+        
         # Manage sounds
+        pygame.mixer.init()  # Initialisation du mixer de Pygame
         self.sound_manager = SoundManager()
 
         # Create menus
         self.menu.create_menus()
+
+        self.value = 0
 
         # Creation of the transparent surface and rectangle transparent
         self.cube = pygame.Rect(1700, 700, 100, 100)
@@ -126,7 +123,6 @@ class Game:
         self.menu.current_screen = "main_fr"
 
     def draw(self):
-
         # Application of the set of images of our platforms group
         for plateforme in self.plateformes:
             plateforme.draw(self.screen)
@@ -144,11 +140,9 @@ class Game:
         # Apply the obscurity one the player
         self.obscurity.shadow(self.screen, 400, 100, self.player.rect.center)
         
-
     def update(self):
         self.player.Update(self.tilemap, self.movement, self.player_should_jump, self.delta_time, self.plateformes_rect_rect)
         self.enemy.move(1)
-
 
     def handle_input(self):
         self.pressed = pygame.key.get_pressed()
@@ -156,15 +150,13 @@ class Game:
         self.player_should_jump = self.pressed[pygame.K_SPACE]
 
     def run(self):
-
         clock = pygame.time.Clock()
 
-        # boucle du jeu
+        # Boucle du jeu
         running = True
         sound_playing = False
 
         while running:
-
             if not sound_playing:
                 self.sound_manager.play('main')
                 sound_playing = True
@@ -174,7 +166,7 @@ class Game:
 
             self.menu.load_different_screens()
 
-            # Check if sound is already play
+            # Vérifiez si le son est déjà en cours de lecture
             if not pygame.mixer.get_busy():
                 sound_playing = False
 
@@ -197,3 +189,6 @@ class Game:
 
         pygame.quit()
         sys.exit()
+
+game = Game()
+game.run()
