@@ -2,6 +2,7 @@ import sys
 import pygame
 import math
 
+from entity import Player
 
 # LoadMenu class
 class LoadMenu(pygame.sprite.Sprite):
@@ -160,7 +161,6 @@ class CreateMenu:
     def load_different_screens(self):
         if self.current_screen == "main_fr":
             self.game.screen.fill((0, 0, 0))
-            self.game.screen.blit(self.game.background, (0, 0))
             self.main_fr_menus.draw(self.game.screen)
             self.game.screen.blit(self.titre, (430, 50))
 
@@ -170,7 +170,6 @@ class CreateMenu:
 
         elif self.current_screen == "main_en":
             self.game.screen.fill((0, 0, 0))
-            self.game.screen.blit(self.game.background, (0, 0))
             self.main_en_menus.draw(self.game.screen)
             self.game.screen.blit(self.titre, (430, 50))
 
@@ -181,9 +180,8 @@ class CreateMenu:
         elif self.current_screen == "play_fr" or self.current_screen == "play_en":
             self.game.screen.blit(self.game.background, (0, 0))
             self.game.draw()
-            self.game.player.Update(self.game.tilemap, self.game.movement, self.game.player_should_jump,
-                                    self.game.delta_time,
-                                    self.game.plateformes_rect_rect)
+            self.game.player.Update(self.game.tilemap, self.game.movement, self.game.player_should_jump, self.game.player_should_dash, self.game.dash_direction, self.game.delta_time, self.game.plateformes_rect_rect)
+
             self.game.update()
             self.game.transparent_cube()
             #self.game.transparent_cube()
@@ -191,9 +189,8 @@ class CreateMenu:
         elif self.current_screen == "level_2":
             self.game.screen.blit(self.game.background_4, (0, 0))
             self.game.draw()
-            self.game.player.Update(self.game.tilemap2, self.game.movement, self.game.player_should_jump,
-                                    self.game.delta_time,
-                                    self.game.plateformes_rect_rect)
+            self.game.player.Update(self.game.tilemap2, self.game.movement, self.game.player_should_jump, self.game.player_should_dash, self.game.dash_direction, self.game.delta_time, self.game.plateformes_rect_rect_2)
+
             self.game.update()
 
         elif self.current_screen == "level_3":

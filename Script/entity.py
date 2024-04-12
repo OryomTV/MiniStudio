@@ -10,7 +10,7 @@ class Entity(pygame.sprite.Sprite):
         self.game = game
 
         self.position = list(pos)
-        self.velocity = (5, 0)
+        self.velocity = (2, 0)
 
         self.old_position = self.position.copy()
 
@@ -82,8 +82,28 @@ class Player(Entity):
         self.rect = self.image.get_rect(midbottom=self.position)
         self.bigger_rect = self.rect.copy()
         self.bigger_rect.inflate_ip(30, 30)
-        self.jump_force = -540
-        self.velocity = (200, 0)
+
+
+        #Jump
+        self.jump_force = -500
+        self.velocity = [500, 0]
+        self.doubleSaut = True
+        self.time_since_last_jump = 0.0
+        self.cooldown_jump_time = 0.3
+
+        #Dash
+        self.time_since_last_dash = 0.0 
+        self.dash_dispo = True
+        self.air_resistance = 2
+        self.dash_velocity = 0
+        self.cooldown_dash_time = 2.0
+        self.onDash = True
+
+        self.facingRight = True
+
+
+
+
     def check_collisions(self, group):
         for other_sprite in group:
             if self != other_sprite and pygame.sprite.collide_rect(self, other_sprite):
@@ -95,38 +115,82 @@ class Player(Entity):
         # surf = pygame.Surface((self.rect.width, self.rect.height))
         # surf.fill((255, 0, 0))
         # surface.blit(surf, self.rect)
-        surface.blit(self.image, self.rect)
+        surface.blit(pygame.transform.flip(self.image, not self.facingRight, False), self.rect)
         
-    def Update(self, tilemap, movement, should_jump, delta_time, plateformes):
+    def Update(self, tilemap, movement, should_jump, should_dash, dash_direction, delta_time, plateformes):
         self.rect.midbottom = self.position
         # self.bigger_rect.center = self.rect.center
-        self.ApplyGravity(delta_time)
+        self.ApplyGravity(tilemap,delta_time)
         if should_jump:
             self.TryToJump()
         else:
             if self.velocity[1] < 0:
                 self.velocity = self.velocity[0], self.velocity[1] * .9
         self.move_player(tilemap, movement, delta_time, plateformes)
+        self.time_since_last_jump += delta_time
+        self.time_since_last_dash += delta_time
+
+        if self.collisions["down"] and self.time_since_last_dash >= self.cooldown_dash_time:
+            self.dash_dispo = True
+
+        if should_dash and self.dash_dispo:
+            self.TryToDash(dash_direction)
+            self.dash_dispo = False
         
     def TryToJump(self):
         if self.collisions["down"]:
             self.velocity = (self.velocity[0], self.jump_force)
+            self.doubleSaut = True
+            self.time_since_last_jump = 0.0
+        elif self.doubleSaut and self.time_since_last_jump >= self.cooldown_jump_time: 
+            self.velocity = (self.velocity[0], self.jump_force)
+            self.doubleSaut = False
         
-    def ApplyGravity(self, delta_time):
+    def TryToDash(self, mouvement):
+        if  not mouvement:
+            self.dash_velocity = 30 
+        else:
+            self.dash_velocity = -30
+        self.time_since_last_dash = 0.0 
+        self.dash_dispo = False     
+
+    def ApplyGravity(self, tilemap, delta_time):
         self.velocity = (self.velocity[0], self.velocity[1] + GRAVITY * delta_time)
+        
+        if self.dash_velocity != 0:
+            self.onDash = True
+            collision_detected = False
+            for rect in tilemap.physics_rects_around(self.rect.midbottom):
+                if rect.collidepoint(self.rect.x, self.rect.y):
+                    collision_detected = True
+                    self.dash_velocity = 0
+                    break
+
+            if not collision_detected:
+                self.rect.x += self.dash_velocity
+                if self.dash_velocity > 0 :
+                    self.dash_velocity -= self.air_resistance
+                    self.image = self.original_image
+                elif self.dash_velocity < 0 :
+                    self.dash_velocity += self.air_resistance
+                    self.image = pygame.transform.flip(self.original_image, True, False)
+        else:
+            self.onDash = False
         
     def move_player(self, tilemap, movement, delta_time, plateformes):
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         
+        if movement > 0:
+            self.facingRight = True
+        elif movement < 0:
+            self.facingRight = False
+
         frame_movement = (movement * self.velocity[0],  self.velocity[1]) # movement[1] + 
         
-        # self.position[0] += frame_movement[0]
         self.rect.x += frame_movement[0] * delta_time
         entity_rect = self.rect
         for rect in tilemap.physics_rects_around(self.rect.midbottom) + plateformes:
             if entity_rect.colliderect(rect):
-                # if hasattr(rect, "childingMethod"):
-                #     rect.childingMethod(self)
                 if frame_movement[0] > 0:
                     entity_rect.right = rect.left
                     self.collisions['right'] = True
@@ -170,6 +234,7 @@ class Enemy(Entity):
         self.max_distance = max_distance
         self.type = type
         self.animation = 0
+        self.Alive = True
 
     def move(self, speed):
         if self.type == "Tatoo":
@@ -193,7 +258,7 @@ class Enemy(Entity):
             if randint(1, 100) <= 2:
                 self.direction_Y *= -1
 
-        if self.direction_Y < 0:
+        if self.direction_X > 0:
             # If moving up, flip the image vertically
             self.image = pygame.transform.flip(self.original_image, True, False)
         else:
@@ -201,5 +266,4 @@ class Enemy(Entity):
             self.image = self.original_image
 
     def draw(self, surface):
-        # Draw the enemy on the surface
         surface.blit(self.image, self.rect)

@@ -31,6 +31,7 @@ class Editor:
             'recess_alternative': load_images('tiles/recess/alternatif', size=(64, 64)),
             'recess_normal': load_images('tiles/recess/normal', size=(64, 64)),
             'cathedral': load_images('tiles/cathedral', size=(64, 64)),
+            'decoration': load_images('tiles/decoration', size=(64, 64)),
             'pillar': load_images('tiles/pillar', size=(100, 250)),
             'ground_floor': load_images('tiles/ground_floor', size=(64, 64))
         }
@@ -41,7 +42,7 @@ class Editor:
 
         try:
             #pass
-            self.tilemap.load('map.json')
+            self.tilemap.load('Script/map2.json')
         except FileNotFoundError:
             pass
 
@@ -144,7 +145,7 @@ class Editor:
                     if event.key == pygame.K_g:
                         self.ongrid = not self.ongrid
                     if event.key == pygame.K_o:
-                        self.tilemap.save('map.json')
+                        self.tilemap.save('map2.json')
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
                 if event.type == pygame.KEYUP:
